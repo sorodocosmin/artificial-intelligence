@@ -78,4 +78,12 @@ def chebyshev_heuristic(matrix) -> float:
     return sum_distance
 
 
+def hamming_heuristic_m1_to_m2(matrix_1, matrix_2) -> float:
 
+    nr_dif = 0
+    for i in range(3):
+        for j in range(3):
+            if matrix_1[i][j] != matrix_2[i][j]:
+                nr_dif += 1
+
+    return nr_dif
