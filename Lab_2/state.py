@@ -1,6 +1,4 @@
-import copy
 from itertools import chain
-
 
 
 class State:
@@ -36,6 +34,10 @@ class State:
             for j in range(3):
                 if self.matrix[i][j] != other.matrix[i][j]:
                     return False
+        return True
+
+    def __lt__(self, other):
+        # Compare based on the priority attribute
         return True
 
     def __hash__(self):
@@ -76,7 +78,6 @@ class State:
         """
         z_i, z_j = self.find_zero()
         if self.transition_1_is_valid(z_i, z_j):
-            # new_state = copy.deepcopy(self)
             matrix_list = [list(row) for row in self.matrix]
             matrix_list[z_i - 1][z_j], matrix_list[z_i][z_j] = matrix_list[z_i][z_j], matrix_list[z_i - 1][z_j]
             # swap the zero cell with the one above
@@ -191,3 +192,29 @@ class State:
             return False
 
         return True
+
+    @staticmethod
+    def possible_final_states() -> list:
+        """
+        will return a list of matrix, which could represent a final state
+        I repeat : a list of m a t r i x
+        :return:
+        """
+        list_matrix = []
+        for i in range(9):
+            matrix = [[], [], []]
+            nr_st = 1
+            nr = 0
+            for j in range(3):
+                for k in range(3):
+                    if nr == i:
+                        matrix[j].append(0)
+                        nr = -1
+                    else:
+                        matrix[j].append(nr_st)
+                        nr_st += 1
+                        if nr != -1:
+                            nr += 1
+            list_matrix += [matrix]
+
+        return list_matrix
