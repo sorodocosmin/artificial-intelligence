@@ -18,7 +18,7 @@ def run_IDDFS(state, max_depth):
     running_time = end_time - start_time
 
     if result is not None:
-        return len(result), running_time
+        return result[len(result)-1], len(result), running_time
     else:
         return None, running_time
 
@@ -26,7 +26,7 @@ def run_IDDFS(state, max_depth):
 def run_greedy(state, heuristic_function):
     """
     This function returns a tuple as follows:
-    (solution_size, time_execution)
+    (solution, solution_size, time_execution)
     """
     start_time = time.time()
     result = main.greedy(state, heuristic_function)
@@ -36,7 +36,7 @@ def run_greedy(state, heuristic_function):
     running_time = end_time - start_time
 
     if result is not None:
-        return len(result) - 1, running_time
+        return result[0], len(result)-1, running_time
     else:
         return None, running_time
 
@@ -50,7 +50,7 @@ def run_A_star(state):
     running_time = end_time - start_time
 
     if result is not None:
-        return len(result) - 1, running_time
+        return result[0], len(result) - 1, running_time
     else:
         return None, running_time
 
@@ -62,17 +62,17 @@ state_3 = State((2, 7, 5, 0, 8, 4, 3, 1, 6))
 
 def print_info(state):
     print("----------------------------------------------------------------------------------------------------")
-    print(f" For the state :\n{state}\nWe got the following results:")
+    print(f"For the state :\n{state}\nWe got the following results:")
     res_iddfs = run_IDDFS(state, 50)
     res_greedy_manhattan = run_greedy(state, heuristics.manhattan_heuristic)
     res_greedy_hamming = run_greedy(state, heuristics.hamming_heuristic)
     res_greedy_cheby = run_greedy(state, heuristics.chebyshev_heuristic)
     res_A_star = run_A_star(state)
-    print(f"IDDFS (max depth = 50) : solution size = {res_iddfs[0]}; time = {res_iddfs[1]} s")
-    print(f"Greedy (manhattan) : solution size = {res_greedy_manhattan[0]}; time = {res_greedy_manhattan[1]} s")
-    print(f"Greedy (hamming) : solution size = {res_greedy_hamming[0]}; time = {res_greedy_hamming[1]} s")
-    print(f"Greedy (chebyshev) : solution size = {res_greedy_cheby[0]}; time = {res_greedy_cheby[1]} s")
-    print(f"A* : solution size = {res_A_star[0]}; time = {res_A_star[1]} s")
+    print(f"IDDFS (max depth = 50) : solution = \n{res_iddfs[0]}\nsolution size = {res_iddfs[1]}; time = {res_iddfs[2]} s\n")
+    print(f"Greedy (manhattan) : solution = \n{res_greedy_manhattan[0]}\nsolution size = {res_greedy_manhattan[1]}; time = {res_greedy_manhattan[2]} s\n")
+    print(f"Greedy (hamming) : solution = \n{res_greedy_hamming[0]}\nsolution size = {res_greedy_hamming[1]}; time = {res_greedy_hamming[2]} s\n")
+    print(f"Greedy (chebyshev) : solution = \n{res_greedy_cheby[0]}\nsolution size = {res_greedy_cheby[1]}; time = {res_greedy_cheby[2]} s\n")
+    print(f"A* : solution = \n{res_A_star[0]}\nsolution size = {res_A_star[1]}; time = {res_A_star[2]} s")
     print("----------------------------------------------------------------------------------------------------")
 
 
