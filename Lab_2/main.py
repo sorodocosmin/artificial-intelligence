@@ -1,32 +1,33 @@
 from state import State
-import time
+import queue
+
 
 def IDDFS(init_state, max_depth):
     for depth in range(1, max_depth+1):
-        print(f"depth={depth}")
-        visited = set()
+        # in dictionary, we'll memorise the matrix and at what depth was visited
+        # (if we reach the same matrix, but with a bigger depth, we will continue to explore that matrix_
+        visited = {}
         moves = []
         solution = depth_limited_DFS(init_state, depth, visited, moves)
         if solution is not None:
-            return solution, moves
+            return moves
 
 
 def depth_limited_DFS(s, depth, visited, moves):
     if s.is_final():
-        return s, moves
+        return s
     if depth == 0:
         return None
 
-    visited.add(s)
+    visited[s] = depth
 
     possible_states = [s.transition_1(),
                        s.transition_2(),
                        s.transition_3(),
                        s.transition_4()]
-    # print(f"for state : \n{s}")
+
     for next_state in possible_states:
-        if next_state is not None and (next_state not in visited):
-            # print(f"------------\n{next_state}\n--------------")
+        if next_state is not None and (next_state not in visited or visited[next_state] < depth):
             moves.append(next_state)
             res = depth_limited_DFS(next_state, depth-1, visited, moves)
             if res is not None:
@@ -36,36 +37,34 @@ def depth_limited_DFS(s, depth, visited, moves):
     return None
 
 
-state_1 = State((8, 6, 7, 2, 5, 4, 0, 3, 1))
-state_2 = State((2, 5, 3, 1, 0, 6, 4, 7, 8))
-state_3 = State((2, 7, 5, 0, 8, 4, 3, 1, 6))
+def greedy(init_state: State, heuristic_function):
+    pq = queue.PriorityQueue()
+    pq.put((heuristic_function(init_state.matrix), init_state))
+    visited = {init_state}  # set
+    parent_dictionary = {init_state: False}
 
-start_time = time.time()
-for i, st in enumerate(IDDFS(state_1,50)[1]):
-    print(f"Step {i} :\n{st}\n")
+    while not pq.empty():
+        priority, state = pq.get()
 
-end_time = time.time()
-running_time = end_time - start_time
+        if state.is_final():
+            list_states = [state]
+            parent_state = parent_dictionary[state]
+            while parent_state is not False:
+                list_states += [parent_state]
+                parent_state = parent_dictionary[parent_state]
 
-print(f"Running time : {running_time}")
+            return list_states  # returns the list of getting to a final state in reverse order
 
-start_time = time.time()
-for i, st in enumerate(IDDFS(state_2,50)[1]):
-    print(f"Step {i} :\n{st}\n")
+        list_possible_states = [state.transition_1(),
+                                state.transition_2(),
+                                state.transition_3(),
+                                state.transition_4()
+                                ]
 
-end_time = time.time()
-running_time = end_time - start_time
+        for next_state in list_possible_states:
+            if next_state is not None and next_state not in visited:
+                pq.put((heuristic_function(next_state.matrix), next_state))
+                visited.add(next_state)
+                parent_dictionary[next_state] = state
 
-print(f"Running time : {running_time}")
-
-start_time = time.time()
-for i, st in enumerate(IDDFS(state_3,50)[1]):
-    print(f"Step {i} :\n{st}\n")
-
-end_time = time.time()
-running_time = end_time - start_time
-
-print(f"Running time : {running_time}")
-
-
-
+    return None
