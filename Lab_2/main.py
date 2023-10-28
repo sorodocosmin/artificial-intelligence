@@ -72,7 +72,7 @@ def greedy(init_state: State, heuristic_function):
 
 
 def A_star(init_state):
-    came_from = {init_state : False}
+    came_from = {init_state: False}
     d = {init_state: 0}
     f = {init_state: 0}
 
