@@ -1,5 +1,5 @@
 
-
+import time
 from table_sudoku import TableSudoku
 from matrix_rules import MatrixRules
 import copy
@@ -105,9 +105,64 @@ def BKT_with_FC_and_MRV(rules):
     return None
 
 
+def arc_consistency(rules):
+    q = set()  # q will be a set as we don't want to have duplicates
+    size = len(rules.matrix_variables)
+    for i1 in range(size):
+        for j1, var1 in enumerate(rules.matrix_variables[i1]):
+            # for every variable in the matrix, we add the arcs to the queue
+            # on line
+            for j2, var2 in enumerate(rules.matrix_variables[i1]):
+                if j1 != j2:
+                    q.add(((i1, j1), (i1, j2)))
+            # on column
+            for i2 in range(size):
+                if i1 != i2:
+                    q.add(((i1, j1), (i2, j1)))
+            # on square
+            square_i = i1 // 3
+            square_j = j1 // 3
+            for i3 in range(square_i * 3, square_i * 3 + 3):
+                for j3 in range(square_j * 3, square_j * 3 + 3):
+                    if not(i1 == i3 and j1 == j3):
+                        q.add(((i1, j1), (i3, j3)))
+
+    while len(q) != 0:
+        X, Y = q.pop()
+        if remove_inconsistent_values(X, Y, rules):
+            for j, var in enumerate(rules.matrix_variables[X[0]]):
+                if j != X[1] and var.assigned == False:
+                    q.add(((X[0], j), X))
+            for i in range(size):
+                if i != X[0] and rules.matrix_variables[i][X[1]].assigned == False:
+                    q.add(((i, X[1]), X))
+            square_i = X[0] // 3
+            square_j = X[1] // 3
+            for i in range(square_i * 3, square_i * 3 + 3):
+                for j in range(square_j * 3, square_j * 3 + 3):
+                    if not (X[0] == i and X[1] == j) and rules.matrix_variables[i][j].assigned == False:
+                        q.add(((i, j), X))
+
+
+def remove_inconsistent_values(X, Y, rules):
+    removed = False
+    for value in rules.matrix_variables[X[0]][X[1]].domain:
+        value_in_y_allows = False
+        for value_y in rules.matrix_variables[Y[0]][Y[1]].domain:
+            if value != value_y:
+                value_in_y_allows = True
+
+        if not value_in_y_allows:
+            rules.matrix_variables[X[0]][X[1]].domain.remove(value)
+            removed = True
+
+    return removed
+
+
 print("\n-----------------SOLUTION SUDOKU 1-----------------\n")
 sudoku_1 = create_sudoku_1()
 rules_sdk = MatrixRules(sudoku_1)
+# arc_consistency(rules_sdk)
 res = BKT_with_FC_and_MRV(rules_sdk)  # result is a MatrixRules object, with rules completed or None if no solution
 res.print_domains()
 
