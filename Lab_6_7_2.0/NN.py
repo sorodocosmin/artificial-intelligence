@@ -44,6 +44,7 @@ class NeuralNetwork:
 
         for epoch in range(self.__nr_epochs):
             error_epoch = 0
+            random.shuffle(training_data)
             for inpt in training_data:
                 label = inpt[-1]
                 expected_output = [0] * self.__size_output_layer
@@ -55,8 +56,8 @@ class NeuralNetwork:
                 error_epoch += Functions.mean_squared_error(expected_output, output)
                 self.back_propagation(output, expected_output)
 
-            print(f"epoch = {epoch} err={error_epoch}")
-            self.__error_training.append((epoch, error_epoch))
+            print(f"epoch = {epoch} err={error_epoch/len(training_data)}")
+            self.__error_training.append((epoch, error_epoch/len(training_data)))
 
     def feed_forward(self, input_data):
         output = []
@@ -110,6 +111,7 @@ class NeuralNetwork:
             previous_layer_output = self.__layers[i - 1].get_output()
             if i == 1:
                 previous_layer_output = self.__layers[i - 1].get_input()
+            # compute delta/ corrections
             delta_w = self.__learning_rate * np.dot(np.array([previous_layer_output]).T, np.array(gradients[i - 1]).reshape(1, -1))
             layer.update_weights(delta_w)
             delta_b = self.__learning_rate * gradients[i - 1]

@@ -47,7 +47,7 @@ class Functions:
         if len(list_predicted) != len(list_expected):
             raise Exception("The lists should have the same length")
 
-        return (sum([(list_predicted[i] - list_expected[i]) ** 2 for i in range(len(list_predicted))]) /
+        return (sum([(list_expected[i] - list_predicted[i]) ** 2 for i in range(len(list_predicted))]) /
                 (len(list_predicted)))
 
     @staticmethod
