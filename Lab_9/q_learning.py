@@ -30,7 +30,7 @@ class QLearning:
     def train(self):
         self.__reward_per_episode = []
         for i in range(self.__nr_episodes):
-            print(f"episode {i}")
+            #  print(f"episode {i}")
             reward = 0
             current_state = self.__start_state
             while current_state != self.__end_state:
@@ -66,6 +66,7 @@ class QLearning:
 
         # print(f"state({state}) -- val pos actions: {possible_actions}")
         return np.random.choice(possible_actions)
+        #return possible_actions[0]
 
     def __get_next_state(self, state, action):
         # we are sure that the action is valid
@@ -120,17 +121,28 @@ class QLearning:
 
         return maxi_val, imp_actions
 
-    def get_policy(self):
+    def get_path(self):
         current_state = self.__start_state
         list_policy = [current_state]
         while current_state != self.__end_state:
             action = self.__choose_action_normal(current_state)
-            print(f"state: {current_state} ; action: {action}")
             current_state = self.__get_next_state(current_state, action)
             list_policy.append(current_state)
 
-        print(f"state: {current_state}")
         return list_policy
+
+    def get_policy(self):
+        """
+        :return: a matrix where policy[i][j] represents the action for the state (i, j)
+        """
+        policy = np.zeros((self.__nr_rows_states, self.__nr_cols_states))
+        for i in range(self.__nr_rows_states):
+            for j in range(self.__nr_cols_states):
+                if (i, j) == self.__end_state:
+                    policy[i][j] = -1  # -1 means that we reached the end state
+                else:
+                    policy[i][j] = self.__choose_action_normal((i, j))
+        return policy
 
     def get_reward_per_episode(self):
         return self.__reward_per_episode
