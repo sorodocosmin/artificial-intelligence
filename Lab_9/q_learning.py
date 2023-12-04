@@ -4,7 +4,7 @@ import numpy as np
 class QLearning:
     def __init__(self, nr_rows_states, nr_cols_states, nr_actions,
                  start_state, end_state,
-                 power_wind_col=False, nr_episodes=200, alpha=0.1, gamma=0.9):
+                 power_wind_col=False, nr_episodes=200, alpha=0.1, gamma=0.9, eps=1.0):
         """
         :param states: will be a matrix, where states[i][j] represents the cell (i, j)
         :param actions: will be a list of possible actions
@@ -19,6 +19,7 @@ class QLearning:
 
         self.__alpha = alpha
         self.__gamma = gamma
+        self.__eps = eps
         self.__nr_episodes = nr_episodes
         self.__nr_rows_states = nr_rows_states
         self.__nr_cols_states = nr_cols_states
@@ -43,6 +44,8 @@ class QLearning:
                 # print(f"prev state: {prev_state} ; next state: {current_state}")
                 self.__update_Q(prev_state, current_state, action)
                 reward += self.__Q[prev_state[0]][prev_state[1]][action]
+            # decrement eps at each episode
+            self.__eps = max(0.1, self.__eps - 0.05)
             self.__reward_per_episode.append(reward)
 
     def __update_Q(self, prev_state, current_state, action):
@@ -50,23 +53,38 @@ class QLearning:
         next_row, next_col = current_state
         q_state = self.__Q[row][col][action]
         self.__Q[row][col][action] = q_state + self.__alpha * (
-            self.get_recompense(next_row, next_col) + self.__gamma * (
+                self.get_recompense(next_row, next_col) + self.__gamma * (
                 self.get_max_value_of_possible_actions((next_row, next_col))[0] - q_state
                 )
-            )
+        )
 
     def __choose_action_normal(self, state):
         # returns the action for which the Q value is the highest
 
         maxi_val, imp_actions = self.get_max_value_of_possible_actions(state)
         row, col = state
-        possible_actions = [act for act in range(self.__nr_actions)
-                            if act not in imp_actions and
-                            self.__Q[row][col][act] == maxi_val]
+        maxi_possible_actions = [act for act in range(self.__nr_actions)
+                                 if act not in imp_actions and
+                                 self.__Q[row][col][act] == maxi_val]
 
         # print(f"state({state}) -- val pos actions: {possible_actions}")
+        return np.random.choice(maxi_possible_actions)
+        # return possible_actions[0]
+
+    def __choose_action_eps_greedy(self, state):
+        # explore with probability eps
+        # exploit with probability 1 - eps
+        maxi_val, imp_actions = self.get_max_value_of_possible_actions(state)
+        nr_random = np.random.uniform(0, 1)
+        if nr_random < self.__eps:  # explore -- make a random action
+            possible_actions = [act for act in range(self.__nr_actions)
+                                if act not in imp_actions]
+        else:  # exploit -- choose the action with the highest Q value
+            possible_actions = [act for act in range(self.__nr_actions)
+                                if act not in imp_actions and
+                                self.__Q[state[0]][state[1]][act] == maxi_val]
+
         return np.random.choice(possible_actions)
-        #return possible_actions[0]
 
     def __get_next_state(self, state, action):
         # we are sure that the action is valid
@@ -151,6 +169,3 @@ class QLearning:
         if (i, j) == self.__end_state:
             return 999_999.999
         return -1
-
-
-
