@@ -1,7 +1,7 @@
-import numpy as np
-
 from q_learning import QLearning
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.patches import FancyArrowPatch
 
 
 def show_path(list_points, rows, cols):
@@ -35,11 +35,6 @@ def show_reward_per_ep(list_rew):
     plt.xlabel('Episodes')
     plt.ylabel('Reward')
     plt.show()
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib.patches import FancyArrowPatch
-
 
 
 def show_policy(num_rows, num_cols, policy):
